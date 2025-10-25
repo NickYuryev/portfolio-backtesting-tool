@@ -1,0 +1,7 @@
+bt
+yfinance
+plotly
+matplotlib
+Dash
+gunicorn
+tenacity 
