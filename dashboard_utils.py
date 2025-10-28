@@ -125,18 +125,37 @@ def create_portfolio_table_html(portfolio: Dict[str, float], company_names: Dict
     
     if not portfolio:
         return html.Div(
-            "No holdings yet. Add a ticker to get started.",
-            style={'textAlign': 'center', 'color': '#7f8c8d', 'padding': '20px'}
+            "💼 No holdings yet. Add a ticker to get started.",
+            style={
+                'textAlign': 'center',
+                'color': '#9ca3af',
+                'padding': '40px 20px',
+                'backgroundColor': '#f9fafb',
+                'borderRadius': '12px',
+                'fontSize': '15px'
+            }
         )
     
     table_rows = []
-    for ticker, weight in portfolio.items():
+    for i, (ticker, weight) in enumerate(portfolio.items()):
         company_name = company_names.get(ticker, 'Loading...')
+        row_style = {
+            'backgroundColor': '#ffffff' if i % 2 == 0 else '#f9fafb'
+        }
         
         table_rows.append(
             html.Tr([
-                html.Td(ticker, style={'padding': '10px', 'fontWeight': 'bold'}),
-                html.Td(company_name, style={'padding': '10px', 'fontSize': '12px', 'color': '#555'}),
+                html.Td(ticker, style={
+                    'padding': '16px',
+                    'fontWeight': '700',
+                    'color': '#1f2937',
+                    'fontSize': '14px'
+                }),
+                html.Td(company_name, style={
+                    'padding': '16px',
+                    'fontSize': '13px',
+                    'color': '#6b7280'
+                }),
                 html.Td([
                     dcc.Input(
                         id={'type': 'weight-input', 'index': ticker},
@@ -145,40 +164,97 @@ def create_portfolio_table_html(portfolio: Dict[str, float], company_names: Dict
                         min=0,
                         max=100,
                         step=0.01,
-                        style={'width': '100px', 'marginRight': '5px'},
+                        style={
+                            'width': '90px',
+                            'marginRight': '8px',
+                            'padding': '8px 12px',
+                            'border': '2px solid #e5e7eb',
+                            'borderRadius': '6px',
+                            'fontSize': '14px'
+                        },
                         debounce=True
                     ),
-                    html.Span('%')
-                ], style={'padding': '10px'}),
+                    html.Span('%', style={'color': '#6b7280', 'fontSize': '14px'})
+                ], style={'padding': '16px'}),
                 html.Td([
                     html.Button('×', 
                                id={'type': 'remove-button', 'index': ticker},
                                n_clicks=0,
                                style={
-                                   'backgroundColor': '#e74c3c',
+                                   'backgroundColor': '#ef4444',
                                    'color': 'white',
                                    'border': 'none',
-                                   'padding': '5px 10px',
+                                   'padding': '6px 12px',
                                    'cursor': 'pointer',
-                                   'borderRadius': '3px',
+                                   'borderRadius': '6px',
                                    'fontSize': '18px',
-                                   'fontWeight': 'bold'
+                                   'fontWeight': 'bold',
+                                   'transition': 'all 0.2s',
+                                   'boxShadow': '0 2px 4px rgba(239, 68, 68, 0.3)'
                                })
-                ], style={'padding': '10px'})
-            ])
+                ], style={'padding': '16px', 'textAlign': 'center'})
+            ], style=row_style)
         )
     
-    return html.Table([
-        html.Thead([
-            html.Tr([
-                html.Th('Ticker', style={'padding': '10px', 'backgroundColor': '#34495e', 'color': 'white'}),
-                html.Th('Company Name', style={'padding': '10px', 'backgroundColor': '#34495e', 'color': 'white'}),
-                html.Th('Weight (%)', style={'padding': '10px', 'backgroundColor': '#34495e', 'color': 'white'}),
-                html.Th('Action', style={'padding': '10px', 'backgroundColor': '#34495e', 'color': 'white'})
-            ])
-        ]),
-        html.Tbody(table_rows)
-    ], style={'width': '100%', 'borderCollapse': 'collapse', 'marginTop': '10px', 'border': '1px solid #ddd'})
+    return html.Div([
+        html.Table([
+            html.Thead([
+                html.Tr([
+                    html.Th('Ticker', style={
+                        'padding': '14px 16px',
+                        'background': '#023047',
+                        'color': 'white',
+                        'fontWeight': '600',
+                        'fontSize': '13px',
+                        'textTransform': 'uppercase',
+                        'letterSpacing': '0.5px',
+                        'textAlign': 'left'
+                    }),
+                    html.Th('Company Name', style={
+                        'padding': '14px 16px',
+                        'background': '#023047',
+                        'color': 'white',
+                        'fontWeight': '600',
+                        'fontSize': '13px',
+                        'textTransform': 'uppercase',
+                        'letterSpacing': '0.5px',
+                        'textAlign': 'left'
+                    }),
+                    html.Th('Weight (%)', style={
+                        'padding': '14px 16px',
+                        'background': '#023047',
+                        'color': 'white',
+                        'fontWeight': '600',
+                        'fontSize': '13px',
+                        'textTransform': 'uppercase',
+                        'letterSpacing': '0.5px',
+                        'textAlign': 'left'
+                    }),
+                    html.Th('Action', style={
+                        'padding': '14px 16px',
+                        'background': '#023047',
+                        'color': 'white',
+                        'fontWeight': '600',
+                        'fontSize': '13px',
+                        'textTransform': 'uppercase',
+                        'letterSpacing': '0.5px',
+                        'textAlign': 'center'
+                    })
+                ])
+            ]),
+            html.Tbody(table_rows)
+        ], style={
+            'width': '100%',
+            'borderCollapse': 'separate',
+            'borderSpacing': '0'
+        })
+    ], style={
+        'backgroundColor': 'white',
+        'borderRadius': '12px',
+        'overflow': 'hidden',
+        'boxShadow': '0 2px 8px rgba(0,0,0,0.08)',
+        'marginTop': '15px'
+    })
 
 
 def format_total_allocation(portfolio: Dict[str, float]):
@@ -194,15 +270,36 @@ def format_total_allocation(portfolio: Dict[str, float]):
     from dash import html
     
     total = sum(portfolio.values()) * 100
-    total_text = f"Total Allocation: {total:.2f}%"
     
     # Color coding with tolerance for floating point errors
     if abs(total - 100) < 0.01:
-        total_style = {'color': '#27ae60', 'fontWeight': 'bold'}
+        bg_color = '#d1fae5'
+        text_color = '#065f46'
+        icon = '✓'
+        border_color = '#10b981'
     elif total < 100:
-        total_style = {'color': '#e67e22', 'fontWeight': 'bold'}
+        bg_color = '#fef3c7'
+        text_color = '#92400e'
+        icon = '⚠️'
+        border_color = '#f59e0b'
     else:
-        total_style = {'color': '#e74c3c', 'fontWeight': 'bold'}
+        bg_color = '#fee2e2'
+        text_color = '#991b1b'
+        icon = '❌'
+        border_color = '#ef4444'
     
-    return html.Div(total_text, style=total_style)
+    return html.Div([
+        html.Span(icon, style={'marginRight': '8px', 'fontSize': '16px'}),
+        html.Span(f"Total Allocation: ", style={'fontWeight': '600'}),
+        html.Span(f"{total:.2f}%", style={'fontWeight': '700'})
+    ], style={
+        'color': text_color,
+        'backgroundColor': bg_color,
+        'padding': '12px 20px',
+        'borderRadius': '10px',
+        'border': f'2px solid {border_color}',
+        'fontSize': '15px',
+        'display': 'inline-block',
+        'boxShadow': f'0 2px 4px {border_color}40'
+    })
 

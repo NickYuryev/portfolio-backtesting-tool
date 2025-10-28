@@ -32,6 +32,126 @@ logger = logging.getLogger(__name__)
 def register_callbacks(app):
     """Register all callbacks with the Dash app"""
     
+    # Clientside callback to handle theme styling with CSS
+    app.clientside_callback(
+        """
+        function(isDarkJson) {
+            const isDark = JSON.parse(isDarkJson);
+            
+            // Remove existing theme style
+            let existingStyle = document.getElementById('theme-style');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+            
+            // Create new style element
+            const style = document.createElement('style');
+            style.id = 'theme-style';
+            
+            if (isDark) {
+                // Dark mode CSS
+                style.innerHTML = `
+                    .theme-card {
+                        background-color: #1c1c1c !important;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.5) !important;
+                        color: #e5e7eb !important;
+                    }
+                    .theme-label {
+                        color: #9ca3af !important;
+                    }
+                    #portfolio-builder-panel h3 {
+                        color: #e5e7eb !important;
+                    }
+                `;
+            } else {
+                // Light mode CSS
+                style.innerHTML = `
+                    .theme-card {
+                        background-color: white !important;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.06) !important;
+                        color: #1f2937 !important;
+                    }
+                    .theme-label {
+                        color: #4a5568 !important;
+                    }
+                    #portfolio-builder-panel h3 {
+                        color: #2d3748 !important;
+                    }
+                `;
+            }
+            
+            document.head.appendChild(style);
+            return window.dash_clientside.no_update;
+        }
+        """,
+        Output('app-container', 'data-theme'),
+        Input('dark-mode', 'children')
+    )
+    
+    @app.callback(
+        [Output('main-container', 'style'),
+         Output('portfolio-builder-panel', 'style'),
+         Output('dark-mode-toggle', 'children'),
+         Output('dark-mode', 'children')],
+        Input('dark-mode-toggle', 'n_clicks'),
+        State('dark-mode', 'children')
+    )
+    def toggle_dark_mode(n_clicks, dark_mode_json):
+        """Toggle between light and dark mode"""
+        if n_clicks is None:
+            n_clicks = 0
+        
+        # Get current dark mode state
+        is_dark = json.loads(dark_mode_json) if dark_mode_json else False
+        
+        # Toggle on button click
+        if n_clicks > 0:
+            is_dark = not is_dark
+        
+        # Define theme styles
+        if is_dark:
+            # Dark mode styles
+            main_style = {
+                'padding': '0',
+                'backgroundColor': '#0d1117',
+                'minHeight': '100vh',
+                'fontFamily': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                'transition': 'all 0.3s ease',
+                'color': '#e5e7eb'
+            }
+            panel_style = {
+                'width': '35%',
+                'padding': '30px',
+                'backgroundColor': '#1c1c1c',
+                'borderRadius': '16px',
+                'height': 'fit-content',
+                'transition': 'all 0.3s ease',
+                'boxShadow': '0 4px 6px rgba(0,0,0,0.5)'
+            }
+            button_text = '☀️ Light Mode'
+        else:
+            # Light mode styles
+            main_style = {
+                'padding': '0',
+                'backgroundColor': '#f0f2f5',
+                'minHeight': '100vh',
+                'fontFamily': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                'transition': 'all 0.3s ease'
+            }
+            panel_style = {
+                'width': '35%',
+                'padding': '30px',
+                'backgroundColor': 'white',
+                'borderRadius': '16px',
+                'height': 'fit-content',
+                'transition': 'all 0.3s ease',
+                'boxShadow': '0 4px 6px rgba(0,0,0,0.07)'
+            }
+            button_text = '🌙 Dark Mode'
+        
+        return main_style, panel_style, button_text, json.dumps(is_dark)
+    
+    
     @app.callback(
         Output('download-sample-link', 'href'),
         Input('download-sample-link', 'id')
@@ -369,31 +489,86 @@ def build_results_display(results, benchmark, log_scale_active, warning_message)
     # Build warning display
     warning_display = None
     if warning_message:
-        warning_display = html.Div(warning_message, 
-                                   style={'color': '#e67e22', 'marginTop': '10px', 
-                                         'fontWeight': 'bold'})
+        warning_display = html.Div([
+            html.Span('⚠️ ', style={'marginRight': '8px'}),
+            html.Span(warning_message)
+        ], style={
+            'color': '#92400e',
+            'backgroundColor': '#fef3c7',
+            'padding': '12px 20px',
+            'borderRadius': '10px',
+            'marginBottom': '25px',
+            'fontWeight': '500',
+            'fontSize': '14px',
+            'border': '2px solid #f59e0b',
+            'boxShadow': '0 2px 4px rgba(245, 158, 11, 0.2)'
+        })
     
     return html.Div([
-        html.H3('Backtest Results', style={'color': '#2c3e50', 'marginBottom': '20px'}),
+        html.H3('🎯 Backtest Results', 
+               style={
+                   'color': '#1f2937',
+                   'marginBottom': '25px',
+                   'fontSize': '28px',
+                   'fontWeight': '600'
+               }),
         warning_display,
         
         # Performance metrics table
         create_metrics_table(stats, metrics, benchmark, safe_get),
         
         # Charts
-        dcc.Graph(id='performance-chart', figure=performance_chart),
-        dcc.Graph(figure=quarterly_chart),
+        html.Div([
+            dcc.Graph(id='performance-chart', figure=performance_chart)
+        ], className='theme-card', style={
+            'padding': '20px',
+            'borderRadius': '12px',
+            'marginBottom': '25px',
+            'transition': 'all 0.3s ease'
+        }),
+        
+        html.Div([
+            dcc.Graph(figure=quarterly_chart)
+        ], className='theme-card', style={
+            'padding': '20px',
+            'borderRadius': '12px',
+            'marginBottom': '25px',
+            'transition': 'all 0.3s ease'
+        }),
         
         # Full stats
         html.Details([
-            html.Summary('View Full Statistics', 
-                        style={'cursor': 'pointer', 'padding': '10px'}),
+            html.Summary('📊 View Full Statistics', 
+                        style={
+                            'cursor': 'pointer',
+                            'padding': '15px 20px',
+                            'backgroundColor': '#f3f4f6',
+                            'borderRadius': '10px',
+                            'fontWeight': '600',
+                            'fontSize': '15px',
+                            'color': '#374151',
+                            'userSelect': 'none'
+                        }),
             html.Pre(capture_display(results), 
-                    style={'backgroundColor': '#f8f9fa', 'padding': '15px', 
-                          'borderRadius': '5px', 'whiteSpace': 'pre-wrap', 
-                          'wordBreak': 'break-all'})
-        ], style={'marginTop': '20px'})
-    ])
+                    style={
+                        'backgroundColor': '#1f2937',
+                        'color': '#f3f4f6',
+                        'padding': '20px',
+                        'borderRadius': '10px',
+                        'whiteSpace': 'pre-wrap',
+                        'wordBreak': 'break-all',
+                        'marginTop': '10px',
+                        'fontSize': '12px',
+                        'lineHeight': '1.6',
+                        'fontFamily': 'monospace'
+                    })
+        ], className='theme-card', style={
+            'marginTop': '25px',
+            'padding': '20px',
+            'borderRadius': '12px',
+            'transition': 'all 0.3s ease'
+        })
+    ], style={'padding': '20px 0'})
 
 
 def create_performance_chart(results, benchmark, log_scale_active):
@@ -526,104 +701,140 @@ def create_metrics_table(stats, metrics, benchmark, safe_get):
     
     return html.Div([
         html.Div([
-            html.H4('Performance Metrics', 
-                   style={'color': '#34495e', 'marginBottom': '15px'}),
+            html.H4('📈 Performance Metrics', 
+                   style={
+                       'color': '#1f2937',
+                       'marginBottom': '20px',
+                       'fontSize': '22px',
+                       'fontWeight': '600'
+                   }),
             html.Table([
                 html.Tr([
-                    html.Td('Metric', style={'fontWeight': 'bold', 'padding': '8px', 
-                           'borderBottom': '2px solid #34495e', 'wordWrap': 'break-word'}),
-                    html.Td('Portfolio', style={'fontWeight': 'bold', 'padding': '8px', 
-                           'borderBottom': '2px solid #34495e', 'textAlign': 'right', 
-                           'wordWrap': 'break-word'}),
-                    html.Td(f'Benchmark ({benchmark})', style={'fontWeight': 'bold', 
-                           'padding': '8px', 'borderBottom': '2px solid #34495e', 
-                           'textAlign': 'right', 'fontSize': '12px', 'color': '#7f8c8d', 
-                           'wordWrap': 'break-word'})
+                    html.Td('Metric', style={
+                        'fontWeight': '700',
+                        'padding': '14px 16px',
+                        'background': '#023047',
+                        'color': 'white',
+                        'fontSize': '13px',
+                        'textTransform': 'uppercase',
+                        'letterSpacing': '0.5px'
+                    }),
+                    html.Td('Portfolio', style={
+                        'fontWeight': '700',
+                        'padding': '14px 16px',
+                        'background': '#023047',
+                        'color': 'white',
+                        'textAlign': 'right',
+                        'fontSize': '13px',
+                        'textTransform': 'uppercase',
+                        'letterSpacing': '0.5px'
+                    }),
+                    html.Td(f'Benchmark ({benchmark})', style={
+                        'fontWeight': '700',
+                        'padding': '14px 16px',
+                        'background': '#023047',
+                        'color': 'white',
+                        'textAlign': 'right',
+                        'fontSize': '12px',
+                        'textTransform': 'uppercase',
+                        'letterSpacing': '0.5px'
+                    })
                 ]),
                 html.Tr([
-                    html.Td('Annualized Return:', style={'padding': '8px'}),
+                    html.Td('Annualized Return:', style={'padding': '14px 16px', 'backgroundColor': '#f9fafb', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(f'{metrics["portfolio_ann_return"]*100:.2f}%', 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold'}),
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': '#f9fafb', 'color': '#111827', 'fontSize': '14px'}),
                     html.Td(f'{metrics["benchmark_ann_return"]*100:.2f}%', 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontSize': '12px', 
-                                 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontSize': '13px', 
+                                 'color': '#6b7280', 'backgroundColor': '#f9fafb'})
                 ]),
                 html.Tr([
-                    html.Td('Relative Return (vs Benchmark):', style={'padding': '8px'}),
+                    html.Td('Relative Return (vs Benchmark):', style={'padding': '14px 16px', 'backgroundColor': 'white', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(f'{metrics["relative_ann_return"]*100:+.2f}%', 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold',
-                                 'color': '#27ae60' if metrics["relative_ann_return"] > 0 else '#e74c3c'}),
-                    html.Td('—', style={'padding': '8px', 'textAlign': 'right', 
-                           'fontSize': '12px', 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': 'white',
+                                 'color': '#10b981' if metrics["relative_ann_return"] > 0 else '#ef4444', 'fontSize': '14px'}),
+                    html.Td('—', style={'padding': '14px 16px', 'textAlign': 'right', 
+                           'fontSize': '13px', 'color': '#6b7280', 'backgroundColor': 'white'})
                 ]),
                 html.Tr([
-                    html.Td('Volatility (Std Dev):', style={'padding': '8px'}),
+                    html.Td('Volatility (Std Dev):', style={'padding': '14px 16px', 'backgroundColor': '#f9fafb', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(f'{metrics["portfolio_std"]*100:.2f}%', 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold'}),
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': '#f9fafb', 'color': '#111827', 'fontSize': '14px'}),
                     html.Td(f'{metrics["benchmark_std"]*100:.2f}%', 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontSize': '12px', 
-                                 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontSize': '13px', 
+                                 'color': '#6b7280', 'backgroundColor': '#f9fafb'})
                 ]),
                 html.Tr([
-                    html.Td('Sharpe Ratio:', style={'padding': '8px'}),
+                    html.Td('Sharpe Ratio:', style={'padding': '14px 16px', 'backgroundColor': 'white', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(safe_get(stats, 'daily_sharpe', 'Portfolio'), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold'}),
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': 'white', 'color': '#111827', 'fontSize': '14px'}),
                     html.Td(safe_get(stats, 'daily_sharpe', 'Benchmark'), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontSize': '12px', 
-                                 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontSize': '13px', 
+                                 'color': '#6b7280', 'backgroundColor': 'white'})
                 ]),
                 html.Tr([
-                    html.Td('Sortino Ratio:', style={'padding': '8px'}),
+                    html.Td('Sortino Ratio:', style={'padding': '14px 16px', 'backgroundColor': '#f9fafb', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(safe_get(stats, 'daily_sortino', 'Portfolio'), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold'}),
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': '#f9fafb', 'color': '#111827', 'fontSize': '14px'}),
                     html.Td(safe_get(stats, 'daily_sortino', 'Benchmark'), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontSize': '12px', 
-                                 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontSize': '13px', 
+                                 'color': '#6b7280', 'backgroundColor': '#f9fafb'})
                 ]),
                 html.Tr([
-                    html.Td('CAGR:', style={'padding': '8px'}),
+                    html.Td('CAGR:', style={'padding': '14px 16px', 'backgroundColor': 'white', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(safe_get(stats, 'cagr', 'Portfolio', multiplier=100, format_pct=True), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold'}),
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': 'white', 'color': '#111827', 'fontSize': '14px'}),
                     html.Td(safe_get(stats, 'cagr', 'Benchmark', multiplier=100, format_pct=True), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontSize': '12px', 
-                                 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontSize': '13px', 
+                                 'color': '#6b7280', 'backgroundColor': 'white'})
                 ]),
                 html.Tr([
-                    html.Td('Max Drawdown:', style={'padding': '8px'}),
+                    html.Td('Max Drawdown:', style={'padding': '14px 16px', 'backgroundColor': '#f9fafb', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(safe_get(stats, 'max_drawdown', 'Portfolio', multiplier=100, format_pct=True), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold'}),
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': '#f9fafb', 'color': '#111827', 'fontSize': '14px'}),
                     html.Td(safe_get(stats, 'max_drawdown', 'Benchmark', multiplier=100, format_pct=True), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontSize': '12px', 
-                                 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontSize': '13px', 
+                                 'color': '#6b7280', 'backgroundColor': '#f9fafb'})
                 ]),
                 html.Tr([
-                    html.Td('Correlation with Benchmark:', style={'padding': '8px'}),
+                    html.Td('Correlation with Benchmark:', style={'padding': '14px 16px', 'backgroundColor': 'white', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(f'{metrics["correlation"]:.2f}' if isinstance(metrics["correlation"], (int, float)) else metrics["correlation"], 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold'}),
-                    html.Td('1.00', style={'padding': '8px', 'textAlign': 'right', 
-                           'fontSize': '12px', 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': 'white', 'color': '#111827', 'fontSize': '14px'}),
+                    html.Td('1.00', style={'padding': '14px 16px', 'textAlign': 'right', 
+                           'fontSize': '13px', 'color': '#6b7280', 'backgroundColor': 'white'})
                 ]),
                 html.Tr([
-                    html.Td('Best Year:', style={'padding': '8px'}),
+                    html.Td('Best Year:', style={'padding': '14px 16px', 'backgroundColor': '#f9fafb', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(format_value(metrics["best_year"]), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold', 
-                                 'color': '#27ae60'}),
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': '#f9fafb',
+                                 'color': '#10b981', 'fontSize': '14px'}),
                     html.Td(format_value(metrics["benchmark_best"]), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontSize': '12px', 
-                                 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontSize': '13px', 
+                                 'color': '#6b7280', 'backgroundColor': '#f9fafb'})
                 ]),
                 html.Tr([
-                    html.Td('Worst Year:', style={'padding': '8px'}),
+                    html.Td('Worst Year:', style={'padding': '14px 16px', 'backgroundColor': 'white', 'color': '#374151', 'fontSize': '14px'}),
                     html.Td(format_value(metrics["worst_year"]), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontWeight': 'bold', 
-                                 'color': '#e74c3c'}),
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontWeight': '700', 'backgroundColor': 'white',
+                                 'color': '#ef4444', 'fontSize': '14px'}),
                     html.Td(format_value(metrics["benchmark_worst"]), 
-                           style={'padding': '8px', 'textAlign': 'right', 'fontSize': '12px', 
-                                 'color': '#7f8c8d'})
+                           style={'padding': '14px 16px', 'textAlign': 'right', 'fontSize': '13px', 
+                                 'color': '#6b7280', 'backgroundColor': 'white'})
                 ])
-            ], style={'width': '100%', 'tableLayout': 'fixed', 'borderCollapse': 'collapse'})
-        ], style={'backgroundColor': '#ecf0f1', 'padding': '20px', 'borderRadius': '10px', 
-                 'marginBottom': '20px', 'maxWidth': '100%', 'overflowX': 'auto'}),
+            ], style={
+                'width': '100%',
+                'tableLayout': 'fixed',
+                'borderCollapse': 'separate',
+                'borderSpacing': '0'
+            })
+        ], style={
+            'padding': '25px',
+            'borderRadius': '12px',
+            'marginBottom': '30px',
+            'maxWidth': '100%',
+            'overflowX': 'auto',
+            'transition': 'all 0.3s ease'
+        }, className='theme-card'),
     ])
 
 

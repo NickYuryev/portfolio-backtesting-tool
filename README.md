@@ -4,7 +4,7 @@ A comprehensive, professional-grade portfolio backtesting tool with support for 
 
 ![Dashboard Preview](https://img.shields.io/badge/status-production--ready-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.8+-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue)
 
 ## 🌟 Features
 
