@@ -1,10 +1,11 @@
 # Portfolio Backtesting Dashboard
 
-A comprehensive, professional-grade portfolio backtesting tool with support for stocks, ETFs, commodities, currencies, and indices from Yahoo Finance. Features include CSV import/export, advanced performance metrics, log scale visualization, and comprehensive data export capabilities.
+A comprehensive portfolio backtesting tool with support for stocks, ETFs, commodities, currencies, and indices from Yahoo Finance. Features include CSV import/export, advanced performance metrics, log scale visualization, and comprehensive data export capabilities.
 
-![Dashboard Preview](https://img.shields.io/badge/status-production--ready-brightgreen)
-![Python](https://img.shields.io/badge/python-3.8+-blue)
-![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue)
+[![CI](https://github.com/NickYuryev/portfolio-backtesting-tool/actions/workflows/ci.yml/badge.svg)](https://github.com/NickYuryev/portfolio-backtesting-tool/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Docker](https://img.shields.io/badge/docker-ready-2496ED)
 
 ## 🌟 Features
 
@@ -34,44 +35,56 @@ A comprehensive, professional-grade portfolio backtesting tool with support for 
 
 ## 📋 Prerequisites
 
-- Python 3.8 or higher
+- Python 3.10 or higher
 - pip (Python package manager)
 - Internet connection (for fetching market data)
+- Docker (optional, for containerised deployment)
 
 ## 🚀 Quick Start
 
-### Installation
+### Option A — Docker (recommended)
 
-1. **Clone or download this repository**
+```bash
+docker compose up -d
+```
 
-2. **Create a virtual environment** (recommended):
+The dashboard will be available at **http://localhost:8050**.
+
+### Option B — Local Python
+
+1. **Clone the repository**
+
+2. **Create and activate a virtual environment**:
 ```bash
 python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 ```
 
-3. **Activate the virtual environment**:
+3. **Install dependencies**:
 ```bash
-# On macOS/Linux:
-source venv/bin/activate
-
-# On Windows:
-venv\Scripts\activate
+pip install -r requirements.txt          # production
+pip install -r requirements-dev.txt      # + test/lint tools
 ```
 
-4. **Install dependencies**:
-```bash
-pip install -r requirements.txt
-```
-
-### Running the Dashboard
-
+4. **Run the dashboard**:
 ```bash
 python dashboard.py
+# or
+make run
 ```
 
 The dashboard will be available at: **http://127.0.0.1:8050**
 
-Open this URL in your web browser to start using the dashboard.
+## 🧪 Testing & Linting
+
+```bash
+make test          # unit tests only (no network)
+make test-network  # includes live yfinance calls
+make lint          # ruff
+make fmt           # black + ruff --fix
+```
+
+Tests are split by a `network` marker so CI can run offline — see `pyproject.toml` for the full pytest config.
 
 ## 📖 User Guide
 
