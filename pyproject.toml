@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "portfolio-backtesting-tool"
+version = "1.0.0"
+description = "Portfolio backtesting dashboard built with Dash and bt"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "bt==0.2.9",
+    "yfinance==0.2.61",
+    "plotly==5.24.1",
+    "matplotlib==3.9.2",
+    "Dash==2.18.2",
+    "gunicorn==23.0.0",
+    "tenacity==9.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-mock>=3.14",
+    "ruff>=0.6",
+    "black>=24.8",
+]
+
+[project.scripts]
+backtest = "cli_dashboard:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+markers = [
+    "network: tests that make live network calls (deselect with -m 'not network')",
+]
