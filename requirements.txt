@@ -1,7 +1,7 @@
-bt
-yfinance
-plotly
-matplotlib
-Dash
-gunicorn
-tenacity 
+bt==0.2.9
+yfinance==0.2.61
+plotly==5.24.1
+matplotlib==3.9.2
+Dash==2.18.2
+gunicorn==23.0.0
+tenacity==9.0.0
