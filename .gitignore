@@ -7,10 +7,15 @@ __pycache__/
 
 # Virtual Environments
 venv/
+.venv/
 env/
 ENV/
 env.bak/
 venv.bak/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
 
 # IDEs
 .vscode/

@@ -1,15 +1,16 @@
 """Unit tests for backtesting_utils — all assertions, no print-and-pray."""
 
-import pandas as pd
-import numpy as np
-import pytest
-from unittest.mock import patch, MagicMock
-from datetime import datetime, timedelta
+from datetime import datetime
+from unittest.mock import MagicMock, patch
 
+import numpy as np
+import pandas as pd
+import pytest
 
 # ---------------------------------------------------------------------------
 # Validation tests — no network required
 # ---------------------------------------------------------------------------
+
 
 class TestInputValidation:
     def test_empty_tickers_returns_error(self):
@@ -24,9 +25,7 @@ class TestInputValidation:
     def test_allocations_not_summing_to_1_returns_error(self):
         from backtesting_utils import safe_portfolio_backtest
 
-        result, error, warning = safe_portfolio_backtest(
-            ["AAPL", "MSFT"], [0.6, 0.3], "SPY"
-        )
+        result, error, warning = safe_portfolio_backtest(["AAPL", "MSFT"], [0.6, 0.3], "SPY")
 
         assert result is None
         assert error is not None
@@ -62,9 +61,7 @@ class TestInputValidation:
     def test_allocation_sum_outside_tolerance_returns_error(self):
         from backtesting_utils import safe_portfolio_backtest
 
-        result, error, warning = safe_portfolio_backtest(
-            ["AAPL", "MSFT"], [0.3, 0.3], "SPY"
-        )
+        result, error, warning = safe_portfolio_backtest(["AAPL", "MSFT"], [0.3, 0.3], "SPY")
 
         assert result is None
         assert error is not None
@@ -75,6 +72,7 @@ class TestInputValidation:
 # ---------------------------------------------------------------------------
 # get_company_name tests — mock yfinance
 # ---------------------------------------------------------------------------
+
 
 class TestGetCompanyName:
     def test_returns_long_name_when_available(self):
@@ -136,6 +134,7 @@ class TestGetCompanyName:
 # Backtest core logic — mock yfinance + bt
 # ---------------------------------------------------------------------------
 
+
 def _make_price_series(ticker: str, n: int = 60) -> pd.Series:
     """Generate a fake daily price series."""
     dates = pd.bdate_range(end=datetime.today(), periods=n)
@@ -154,8 +153,10 @@ class TestSafePortfolioBacktest:
     def test_valid_single_ticker_returns_no_error(self):
         from backtesting_utils import safe_portfolio_backtest
 
-        with patch("backtesting_utils._download_data_with_retries", side_effect=self._mock_download), \
-             patch("bt.run") as mock_run:
+        with (
+            patch("backtesting_utils._download_data_with_retries", side_effect=self._mock_download),
+            patch("bt.run") as mock_run,
+        ):
             mock_results = MagicMock()
             mock_run.return_value = mock_results
 
@@ -166,8 +167,9 @@ class TestSafePortfolioBacktest:
         assert error is None
 
     def test_failed_benchmark_download_returns_error(self):
-        from backtesting_utils import safe_portfolio_backtest
         import yfinance
+
+        from backtesting_utils import safe_portfolio_backtest
 
         def selective_fail(tickers, start_date):
             if tickers == ["SPY"]:
@@ -215,6 +217,7 @@ class TestSafePortfolioBacktest:
 # CLI argument parsing
 # ---------------------------------------------------------------------------
 
+
 class TestCLIArgumentParsing:
     def test_cli_rejects_mismatched_tickers_and_allocations(self, capsys):
         from cli_dashboard import run_cli_backtest
@@ -228,8 +231,10 @@ class TestCLIArgumentParsing:
         """Tickers entered in lowercase must be uppercased before use."""
         from cli_dashboard import run_cli_backtest
 
-        with patch("cli_dashboard.safe_portfolio_backtest") as mock_bt, \
-             patch("cli_dashboard.get_company_name", return_value="Apple Inc."):
+        with (
+            patch("cli_dashboard.safe_portfolio_backtest") as mock_bt,
+            patch("cli_dashboard.get_company_name", return_value="Apple Inc."),
+        ):
             mock_bt.return_value = (None, "network disabled", None)
             run_cli_backtest("aapl", "100", "spy")
             call_args = mock_bt.call_args[0]
@@ -241,8 +246,10 @@ class TestCLIArgumentParsing:
         """CLI takes percentages (60,40) and converts to fractions (0.6, 0.4)."""
         from cli_dashboard import run_cli_backtest
 
-        with patch("cli_dashboard.safe_portfolio_backtest") as mock_bt, \
-             patch("cli_dashboard.get_company_name", return_value="Apple Inc."):
+        with (
+            patch("cli_dashboard.safe_portfolio_backtest") as mock_bt,
+            patch("cli_dashboard.get_company_name", return_value="Apple Inc."),
+        ):
             mock_bt.return_value = (None, "network disabled", None)
             run_cli_backtest("AAPL,MSFT", "60,40", "SPY")
             call_args = mock_bt.call_args[0]
@@ -255,6 +262,7 @@ class TestCLIArgumentParsing:
 # ---------------------------------------------------------------------------
 # Live integration tests — skipped unless --network flag passed
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.network
 class TestLiveNetwork:

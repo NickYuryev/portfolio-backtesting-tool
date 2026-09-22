@@ -1,4 +1,5 @@
 bt==0.2.9
+future==1.0.0  # undeclared transitive dep of bt 0.2.9 (bt/core.py imports future.utils)
 yfinance==0.2.61
 plotly==5.24.1
 matplotlib==3.9.2
