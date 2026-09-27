@@ -23,13 +23,12 @@ def create_layout():
             html.Div(
                 id="main-container",
                 children=[
-                    # Header with professional blue background
                     html.Div(
                         [
                             html.Div(
                                 [
                                     html.H1(
-                                        "📊 Portfolio Backtesting Dashboard",
+                                        "Portfolio Backtesting Dashboard",
                                         style={
                                             "textAlign": "center",
                                             "color": "white",
@@ -41,7 +40,7 @@ def create_layout():
                                         },
                                     ),
                                     html.P(
-                                        "Professional-grade portfolio analysis and performance metrics",
+                                        "Backtest a weighted portfolio against a benchmark",
                                         style={
                                             "textAlign": "center",
                                             "color": "rgba(255,255,255,0.95)",
@@ -54,7 +53,7 @@ def create_layout():
                                 style={"flex": "1"},
                             ),
                             html.Button(
-                                "🌙 Dark Mode",
+                                "Dark mode",
                                 id="dark-mode-toggle",
                                 n_clicks=0,
                                 style={
@@ -126,7 +125,7 @@ def create_portfolio_builder():
         id="portfolio-builder-panel",
         children=[
             html.H3(
-                "🎯 Portfolio Builder",
+                "Portfolio Builder",
                 style={
                     "color": "#2d3748",
                     "marginBottom": "25px",
@@ -139,7 +138,7 @@ def create_portfolio_builder():
                 className="theme-card",
                 children=[
                     html.Label(
-                        "📂 Load Saved Portfolio",
+                        "Load Saved Portfolio",
                         className="theme-label",
                         style={
                             "marginBottom": "10px",
@@ -166,7 +165,7 @@ def create_portfolio_builder():
                 className="theme-card",
                 children=[
                     html.Label(
-                        "📤 Import/Export",
+                        "Import/Export",
                         className="theme-label",
                         style={
                             "marginBottom": "15px",
@@ -180,7 +179,7 @@ def create_portfolio_builder():
                             dcc.Upload(
                                 id="upload-portfolio",
                                 children=html.Button(
-                                    "📁 Import CSV",
+                                    "Import CSV",
                                     style={
                                         "backgroundColor": "#8b5cf6",
                                         "color": "white",
@@ -197,7 +196,7 @@ def create_portfolio_builder():
                                 multiple=False,
                             ),
                             html.Button(
-                                "💾 Export CSV",
+                                "Export CSV",
                                 id="export-button",
                                 n_clicks=0,
                                 style={
@@ -214,7 +213,7 @@ def create_portfolio_builder():
                                 },
                             ),
                             html.A(
-                                "📋 Sample CSV",
+                                "Sample CSV",
                                 id="download-sample-link",
                                 download="portfolio_template.csv",
                                 href="",
@@ -251,7 +250,7 @@ def create_portfolio_builder():
                 className="theme-card",
                 children=[
                     html.Label(
-                        "➕ Add New Holding",
+                        "Add New Holding",
                         className="theme-label",
                         style={
                             "marginBottom": "12px",
@@ -326,7 +325,7 @@ def create_portfolio_builder():
             html.Div(
                 [
                     html.H3(
-                        "⚙️ Benchmark & Settings",
+                        "Benchmark & Settings",
                         style={
                             "color": "#2d3748",
                             "marginTop": "30px",
@@ -385,7 +384,7 @@ def create_portfolio_builder():
                         },
                     ),
                     html.Button(
-                        "🚀 Run Backtest",
+                        "Run Backtest",
                         id="run-button",
                         n_clicks=0,
                         style={
@@ -428,7 +427,7 @@ def create_results_panel():
                 children=[
                     # Log Scale Toggle
                     html.Button(
-                        "📈 Toggle Log Scale",
+                        "Toggle Log Scale",
                         id="toggle-log-returns-button",
                         n_clicks=0,
                         style={
@@ -458,7 +457,7 @@ def create_results_panel():
                     ),
                     # Export Metrics Button
                     html.Button(
-                        "📊 Export Full Report",
+                        "Export Full Report",
                         id="export-metrics-button",
                         n_clicks=0,
                         style={

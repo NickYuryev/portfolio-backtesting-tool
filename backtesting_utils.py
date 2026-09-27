@@ -52,7 +52,6 @@ def get_company_name(ticker):
 def _download_data_with_retries(tickers, start_date):
     """Helper function to download data with retries for transient errors."""
     logger.debug(f"Attempting to download data for {tickers} from {start_date}")
-    # Increased timeout to 30 seconds for robustness
     data = yf.download(tickers, start=start_date, auto_adjust=True, progress=False, timeout=30)[
         "Close"
     ]
@@ -64,7 +63,7 @@ def _download_data_with_retries(tickers, start_date):
 
 
 def safe_portfolio_backtest(tickers, allocations, benchmark, start_date=None):
-    """Enhanced portfolio backtest with comprehensive error handling"""
+    """Run the backtest. Returns (results, error, warning); results is None on error."""
     try:
         # Validate inputs
         if not tickers or not allocations:

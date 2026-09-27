@@ -1,7 +1,4 @@
-"""
-Portfolio Backtesting Dashboard - Main Application
-A comprehensive tool for backtesting portfolio allocations using yfinance data
-"""
+"""Dash entry point. `server` is exposed for gunicorn."""
 
 import logging
 

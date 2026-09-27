@@ -135,7 +135,7 @@ def register_callbacks(app):
                 "transition": "all 0.3s ease",
                 "boxShadow": "0 4px 6px rgba(0,0,0,0.5)",
             }
-            button_text = "☀️ Light Mode"
+            button_text = "Light mode"
         else:
             # Light mode styles
             main_style = {
@@ -154,7 +154,7 @@ def register_callbacks(app):
                 "transition": "all 0.3s ease",
                 "boxShadow": "0 4px 6px rgba(0,0,0,0.07)",
             }
-            button_text = "🌙 Dark Mode"
+            button_text = "Dark mode"
 
         return main_style, panel_style, button_text, json.dumps(is_dark)
 
@@ -190,7 +190,7 @@ def register_callbacks(app):
             return (
                 current_portfolio_json,
                 current_names_json,
-                html.Div(f"❌ {parse_error}", style={"color": "#e74c3c", "fontWeight": "bold"}),
+                html.Div(f"{parse_error}", style={"color": "#e74c3c", "fontWeight": "bold"}),
             )
 
         # Convert CSV to portfolio
@@ -199,7 +199,7 @@ def register_callbacks(app):
             return (
                 current_portfolio_json,
                 current_names_json,
-                html.Div(f"❌ {csv_error}", style={"color": "#e74c3c", "fontWeight": "bold"}),
+                html.Div(f"{csv_error}", style={"color": "#e74c3c", "fontWeight": "bold"}),
             )
 
         # Fetch missing company names
@@ -213,7 +213,7 @@ def register_callbacks(app):
             json.dumps(portfolio),
             json.dumps(company_names),
             html.Div(
-                f"✓ Imported {len(portfolio)} holdings from {filename}",
+                f"Imported {len(portfolio)} holdings from {filename}",
                 style={"color": "#27ae60", "fontWeight": "bold"},
             ),
         )
@@ -251,7 +251,7 @@ def register_callbacks(app):
         prevent_initial_call=True,
     )
     def export_metrics(n_clicks, portfolio_json, benchmark, start_date):
-        """Export comprehensive backtest metrics and performance data to CSV"""
+        """Export the backtest time series and metrics as one CSV."""
         if not n_clicks or not portfolio_json:
             return None
 
@@ -275,11 +275,10 @@ def register_callbacks(app):
             # Calculate additional metrics (same as in results display)
             calculated_metrics = calculate_additional_metrics(results)
 
-            # Create comprehensive CSV with time series and metrics
             csv_str = create_comprehensive_metrics_csv(results, calculated_metrics, benchmark)
 
             log_event(
-                "Comprehensive metrics exported",
+                "Report exported",
                 data_points=len(results.prices),
                 tickers=",".join(tickers),
             )
@@ -497,7 +496,7 @@ def register_callbacks(app):
         if portfolio and ctx.triggered and "saved-portfolios-dropdown" not in str(ctx.triggered):
             save_portfolio_to_cache(portfolio, company_names)
             if not save_status:
-                save_status = "✓ Portfolio saved"
+                save_status = "Portfolio saved"
 
         # Build display
         table = create_portfolio_table_html(portfolio, company_names)
@@ -541,7 +540,7 @@ def build_results_display(results, benchmark, log_scale_active, warning_message)
     warning_display = None
     if warning_message:
         warning_display = html.Div(
-            [html.Span("⚠️ ", style={"marginRight": "8px"}), html.Span(warning_message)],
+            [html.Span(warning_message)],
             style={
                 "color": "#92400e",
                 "backgroundColor": "#fef3c7",
@@ -558,7 +557,7 @@ def build_results_display(results, benchmark, log_scale_active, warning_message)
     return html.Div(
         [
             html.H3(
-                "🎯 Backtest Results",
+                "Backtest Results",
                 style={
                     "color": "#1f2937",
                     "marginBottom": "25px",
@@ -594,7 +593,7 @@ def build_results_display(results, benchmark, log_scale_active, warning_message)
             html.Details(
                 [
                     html.Summary(
-                        "📊 View Full Statistics",
+                        "View Full Statistics",
                         style={
                             "cursor": "pointer",
                             "padding": "15px 20px",
@@ -788,7 +787,7 @@ def create_metrics_table(stats, metrics, benchmark, safe_get):
             html.Div(
                 [
                     html.H4(
-                        "📈 Performance Metrics",
+                        "Performance Metrics",
                         style={
                             "color": "#1f2937",
                             "marginBottom": "20px",

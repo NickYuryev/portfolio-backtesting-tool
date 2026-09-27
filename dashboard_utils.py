@@ -124,7 +124,7 @@ def create_portfolio_table_html(portfolio: dict[str, float], company_names: dict
 
     if not portfolio:
         return html.Div(
-            "💼 No holdings yet. Add a ticker to get started.",
+            "No holdings yet. Add a ticker to get started.",
             style={
                 "textAlign": "center",
                 "color": "#9ca3af",
@@ -303,22 +303,18 @@ def format_total_allocation(portfolio: dict[str, float]):
     if abs(total - 100) < 0.01:
         bg_color = "#d1fae5"
         text_color = "#065f46"
-        icon = "✓"
         border_color = "#10b981"
     elif total < 100:
         bg_color = "#fef3c7"
         text_color = "#92400e"
-        icon = "⚠️"
         border_color = "#f59e0b"
     else:
         bg_color = "#fee2e2"
         text_color = "#991b1b"
-        icon = "❌"
         border_color = "#ef4444"
 
     return html.Div(
         [
-            html.Span(icon, style={"marginRight": "8px", "fontSize": "16px"}),
             html.Span("Total Allocation: ", style={"fontWeight": "600"}),
             html.Span(f"{total:.2f}%", style={"fontWeight": "700"}),
         ],

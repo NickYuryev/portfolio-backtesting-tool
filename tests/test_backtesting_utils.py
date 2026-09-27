@@ -1,4 +1,4 @@
-"""Unit tests for backtesting_utils — all assertions, no print-and-pray."""
+"""Tests for backtesting_utils."""
 
 from datetime import datetime
 from unittest.mock import MagicMock, patch
@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 # ---------------------------------------------------------------------------
-# Validation tests — no network required
+# Input validation (no network)
 # ---------------------------------------------------------------------------
 
 
@@ -35,7 +35,7 @@ class TestInputValidation:
         """Allocation of exactly 1.0 should not trigger the validation error."""
         from backtesting_utils import safe_portfolio_backtest
 
-        # We don't care about the network result here — just that validation passes
+        # Only checking that validation passes; the network result doesn't matter here
         # and the error is NOT the allocation message.
         with patch("backtesting_utils._download_data_with_retries") as mock_dl:
             mock_dl.side_effect = Exception("network disabled in unit test")
@@ -70,7 +70,7 @@ class TestInputValidation:
 
 
 # ---------------------------------------------------------------------------
-# get_company_name tests — mock yfinance
+# get_company_name, with yfinance mocked
 # ---------------------------------------------------------------------------
 
 
@@ -131,7 +131,7 @@ class TestGetCompanyName:
 
 
 # ---------------------------------------------------------------------------
-# Backtest core logic — mock yfinance + bt
+# Backtest logic, with yfinance and bt mocked
 # ---------------------------------------------------------------------------
 
 
@@ -260,7 +260,7 @@ class TestCLIArgumentParsing:
 
 
 # ---------------------------------------------------------------------------
-# Live integration tests — skipped unless --network flag passed
+# Live yfinance calls (marked network; `make test` deselects them)
 # ---------------------------------------------------------------------------
 
 
